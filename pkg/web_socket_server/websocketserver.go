@@ -20,7 +20,7 @@ func NewServer(path string, port int, host string) *Server {
 }
 
 func (s *Server) Init() (*net.TCPListener, error) {
-	connection, err := net.Listen("tcp", s.path + ":" + string(s.port))
+	connection, err := net.Listen("tcp", s.path+":"+string(s.port))
 
 	if err != nil {
 		return nil, err
@@ -29,4 +29,17 @@ func (s *Server) Init() (*net.TCPListener, error) {
 	return connection.(*net.TCPListener), nil
 }
 
+func (s *Server) Accept(listener *net.TCPListener) {
+	connection, err := listener.Accept()
 
+	if err != nil {
+		log.Fatalf("Error: %v", err)
+	}
+
+	defer connection.Close()
+
+	if sendHandShake(conn) {
+		NewClient(conn)
+		return
+	}
+}
