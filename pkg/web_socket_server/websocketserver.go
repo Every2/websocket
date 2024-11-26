@@ -48,8 +48,8 @@ func (s *Server) Accept(listener *net.TCPListener) {
 	defer connection.Close()
 
 	if s.sendHandShake(connection) {
-		websocketclient.NewClient(connection)
-		return
+		client := websocketclient.NewClient(connection)
+		s.handleCommunication(client)
 	}
 }
 
@@ -128,4 +128,22 @@ func sendHandShakeResponse(connection net.Conn, acceptString string) {
 		"Sec-WebSocket-Accept: %s\r\n", acceptString)
 
 	connection.Write([]byte(response))
+}
+
+func (s *Server) handleCommunication(client *websocketclient.Client) {
+	for {
+		message, err := client.Read()
+		if err != nil {
+			log.Println("Error rading client message", err)
+			break
+		}
+
+		fmt.Printf("Receveid %s from the browser\n", string(message))
+
+		err = client.Send("Receveid" + string(message) + " from browser")
+		if err != nil {
+			log.Println("Error sending message to client", err)
+			break
+		}
+	}
 }

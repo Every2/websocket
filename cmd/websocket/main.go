@@ -20,5 +20,7 @@ func main() {
 	}
 
 	log.Printf("Servidor is working on %s:%d", host, port)
-	server.Accept(ln)
+	for {
+		server.Accept(ln)
+	}
 }
